@@ -28,6 +28,7 @@ public class ShatterRuntime : MonoBehaviour
         public Material innerMaterial;
         public bool useParticleAfterShatter;
         public ParticleSystem shatterParticlePrefab;
+        public Vector3 particleLocalPosition = Vector3.zero;
         public Vector3 particleForward = Vector3.up;
         
 
@@ -66,9 +67,9 @@ public class ShatterRuntime : MonoBehaviour
             if (useParticleAfterShatter)
             {
                 var shatterParticleInstance = Instantiate(shatterParticlePrefab);
-                var transform1 = shatterParticleInstance.transform;
-                transform1.position = transform.position;
-                transform1.forward = particleForward;
+                var particleInstanceTransform = shatterParticleInstance.transform;
+                particleInstanceTransform.position = transform.position + particleLocalPosition;
+                particleInstanceTransform.forward = particleForward;
             }
             shattered = true;
             fragmentRoot.SetActive(true);
@@ -80,10 +81,9 @@ public class ShatterRuntime : MonoBehaviour
                 var direction = explode
                     ? (fragment.transform.position - meshCollider.bounds.center).normalized
                     : forceDirection.normalized;
-                forceMagnitude = Mathf.Clamp(forceMagnitude, 0f, 100f);
                 fragment.transform.SetParent(parentFragments ? parentForFragments : null, true);
                 fragment.layer = fragmentLayerIndex;
-                fragment.GetComponent<Rigidbody>().AddForce(direction * forceMagnitude * 3f, ForceMode.VelocityChange);
+                fragment.GetComponent<Rigidbody>().AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
             }
             rayfireRigid.Fade();
         }
